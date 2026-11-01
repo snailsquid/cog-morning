@@ -5,9 +5,13 @@
     "name": "Morning",
     "short": "Daily morning digest built from pluggable sections (reminders, ...)",
     "description": "Daily morning digest built from pluggable sections (reminders, ...)",
-    "end_user_data_statement": "This cog does not persistently store data about users.",
+    "end_user_data_statement": "This cog stores your morning digest settings (time, timezone, channel) and the content you add to its sections, such as reminders. It is deleted on data deletion requests.",
     "requirements": [],
-    "tags": [],
+    "tags": [
+        "utility",
+        "reminders",
+        "productivity"
+    ],
     "min_bot_version": "3.5.0",
     "hidden": false,
     "disabled": false,

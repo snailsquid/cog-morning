@@ -47,3 +47,10 @@ old version keeps running. Then `git push`.
 
 `POST /cogs/<name>/rollback {"commit": "<sha>"}` on the conductor API, or
 `[p]conductor rollback <name> <sha>` in Discord. `.../unpin` resumes auto-updates.
+
+## This cog: sections
+
+`morning` is a manager (`morning/core.py`: schedule, delivery, settings, the `morning` command
+group) plus pluggable **sections** in `morning/sections/`, combined into one Cog with Red's
+mixin pattern (`morning/abc.py`). New morning content = a new section module, not a new cog.
+See "Adding a section" in `README.md`. Keep the section table in `README.md` current.

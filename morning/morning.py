@@ -1,33 +1,34 @@
+from typing import List, Tuple
+
 from redbot.core import Config, commands
 from redbot.core.bot import Red
 
+from .abc import CompositeMetaClass, SectionInfo
+from .core import Core
+from .sections import SECTIONS
 
-class Morning(commands.Cog):
-    """Example cog. Replace this docstring with what the cog does."""
+
+class Morning(Core, *SECTIONS, commands.Cog, metaclass=CompositeMetaClass):
+    """A daily morning message, built from pluggable sections."""
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
         self.config = Config.get_conf(self, identifier=426660349173, force_registration=True)
-        self.config.register_global(counter=0)
-
-    async def cog_unload(self) -> None:
-        # Cancel background tasks here.
-        pass
-
-    async def red_delete_data_for_user(self, **kwargs) -> None:
-        return
-
-    @commands.group(name="morning", invoke_without_command=True)
-    async def morning(self, ctx: commands.Context) -> None:
-        """Say hello and count how many times this ran."""
-        count = await self.config.counter() + 1
-        await self.config.counter.set(count)
-        await ctx.send(f"Hello from morning! (run #{count})")
-        self.bot.dispatch("morning_hello", ctx.author, count)
-
-    @morning.command(name="reset")
-    @commands.is_owner()
-    async def morning_reset(self, ctx: commands.Context) -> None:
-        """Reset the counter."""
-        await self.config.counter.set(0)
-        await ctx.send("Counter reset.")
+        self.config.register_user(
+            enabled=False,
+            time="07:00",
+            timezone="UTC",
+            channel=None,  # None = DM
+            disabled_sections=[],
+            last_sent=None,  # ISO date, in the user's timezone
+        )
+        self.sections: List[Tuple[SectionInfo, object]] = []
+        for name in dir(type(self)):
+            info = getattr(getattr(type(self), name, None), "__morning_section__", None)
+            if info is None:
+                continue
+            self.config.init_custom(info.key, 1)
+            self.config.register_custom(info.key, **info.defaults)
+            self.sections.append((info, getattr(self, name)))
+        self.sections.sort(key=lambda s: (s[0].order, s[0].key))
+        self._task = None
