@@ -52,6 +52,8 @@ old version keeps running. Then `git push`.
 
 `morning` is a manager (`morning/core.py`: schedule, delivery, settings, the `morning` command
 group) plus pluggable **sections** in `morning/sections/`, combined into one Cog with Red's
-mixin pattern (`morning/abc.py`). New morning content = a new section module, not a new cog.
+mixin pattern (`morning/abc.py`). New morning content = a new section module, unless it is useful on its own (own commands, own
+repo): then that cog offers it through `morning_sections()` (see "Offering a section from
+another cog" in `README.md`).
 See "Adding a section" in `README.md`. Keep the section table in `README.md` current.
 The manager never builds content: sections return their own `Content` (text/embeds/files).

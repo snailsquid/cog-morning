@@ -17,10 +17,9 @@ class Morning(Core, *SECTIONS, commands.Cog, metaclass=CompositeMetaClass):
         self.config.register_global(
             enabled=False,
             time="07:00",
-            timezone="UTC",
             channel=None,  # None = DM the bot owner
             disabled_sections=[],
-            last_sent=None,  # ISO date, in the configured timezone
+            last_sent=None,  # ISO date, in the profile timezone
         )
         self.sections: List[Tuple[SectionInfo, object]] = []
         for name in dir(type(self)):

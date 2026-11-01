@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import datetime
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 import discord
@@ -17,8 +17,9 @@ class Content:
     files: List[discord.File] = field(default_factory=list)
 
 
-# async def render(self, today) -> the section's message, or None to skip it today.
-Renderer = Callable[[Any, date], Awaitable[Optional[Content]]]
+# async def render(self, now) -> the section's message, or None to skip it today.
+# `now` is a timezone-aware datetime in the owner's profile timezone; `now.date()` is the day being sent.
+Renderer = Callable[[Any, datetime], Awaitable[Optional[Content]]]
 
 
 class MixinMeta(ABC):
@@ -42,6 +43,7 @@ class SectionInfo:
     order: int
     description: str
     defaults: Dict[str, Any]
+    cog: Optional[str] = None  # set for sections offered by another cog
 
 
 def section(
