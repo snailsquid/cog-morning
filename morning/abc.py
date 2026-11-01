@@ -1,14 +1,24 @@
 from abc import ABC
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
-from typing import Any, Awaitable, Callable, Dict, Optional
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 import discord
 from redbot.core import Config, commands
 from redbot.core.bot import Red
 
-# async def render(self, user, today) -> text for the digest, or None to skip the section today.
-Renderer = Callable[[Any, discord.abc.User, date], Awaitable[Optional[str]]]
+
+@dataclass
+class Content:
+    """One Discord message, built entirely by a section."""
+
+    text: Optional[str] = None
+    embeds: List[discord.Embed] = field(default_factory=list)
+    files: List[discord.File] = field(default_factory=list)
+
+
+# async def render(self, today) -> the section's message, or None to skip it today.
+Renderer = Callable[[Any, date], Awaitable[Optional[Content]]]
 
 
 class MixinMeta(ABC):
@@ -17,9 +27,9 @@ class MixinMeta(ABC):
     bot: Red
     config: Config
 
-    def section_conf(self, key: str, user: discord.abc.User) -> Any:
-        """The Config group that section `key` stores this user's data in."""
-        return self.config.custom(key, user.id)
+    def section_conf(self, key: str) -> Any:
+        """The Config group that section `key` stores its data in."""
+        return self.config.custom(key)
 
 
 class CompositeMetaClass(type(commands.Cog), type(ABC)):
@@ -29,7 +39,6 @@ class CompositeMetaClass(type(commands.Cog), type(ABC)):
 @dataclass(frozen=True)
 class SectionInfo:
     key: str
-    title: str
     order: int
     description: str
     defaults: Dict[str, Any]
@@ -37,7 +46,6 @@ class SectionInfo:
 
 def section(
     key: str,
-    title: str,
     *,
     order: int = 50,
     description: str = "",
@@ -45,12 +53,12 @@ def section(
 ) -> Callable[[Renderer], Renderer]:
     """Mark a mixin method as a morning section renderer.
 
-    `defaults` are registered as a per-user Config group, reached with
-    `self.section_conf(key, user)`. Lower `order` renders first.
+    `defaults` are registered as the section's own Config group, reached with
+    `self.section_conf(key)`. Lower `order` is sent first.
     """
 
     def deco(func: Renderer) -> Renderer:
-        func.__morning_section__ = SectionInfo(key, title, order, description, defaults or {})
+        func.__morning_section__ = SectionInfo(key, order, description, defaults or {})
         return func
 
     return deco

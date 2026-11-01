@@ -3,13 +3,12 @@
         "snailsquid"
     ],
     "name": "Morning",
-    "short": "Daily morning digest built from pluggable sections (reminders, ...)",
-    "description": "Daily morning digest built from pluggable sections (reminders, ...)",
-    "end_user_data_statement": "This cog stores your morning digest settings (time, timezone, channel) and the content you add to its sections, such as reminders. It is deleted on data deletion requests.",
+    "short": "Sends pluggable morning sections at a set time each day",
+    "description": "Sends pluggable morning sections at a set time each day. The manager only schedules and delivers; each section builds its own messages.",
+    "end_user_data_statement": "This cog does not store data about users.",
     "requirements": [],
     "tags": [
         "utility",
-        "reminders",
         "productivity"
     ],
     "min_bot_version": "3.5.0",

@@ -54,3 +54,4 @@ old version keeps running. Then `git push`.
 group) plus pluggable **sections** in `morning/sections/`, combined into one Cog with Red's
 mixin pattern (`morning/abc.py`). New morning content = a new section module, not a new cog.
 See "Adding a section" in `README.md`. Keep the section table in `README.md` current.
+The manager never builds content: sections return their own `Content` (text/embeds/files).

@@ -1,30 +1,30 @@
 # morning
 
-A daily morning digest. One message per day at your chosen time, built from **sections**
-(reminders today; more later). Each section can be switched on or off per user.
+Sends the morning **sections** at a set time each day. The manager only schedules and delivers;
+it never builds content. Each section builds its own message (text, embeds, images, files), and
+each section is sent as its own message, in order.
+
+One global schedule, sent by DM to the bot owner unless a channel is set. Owner-only commands.
 
 ## Commands
 
 | Command | Who | What |
 |---|---|---|
-| `[p]morning` | anyone | Your settings, next send time, and which sections are on. |
-| `[p]morning on` / `off` | anyone | Start / stop your daily digest. |
-| `[p]morning time <HH:MM>` | anyone | Send time, 24h, in your timezone (default `07:00`). |
-| `[p]morning timezone <tz>` | anyone | IANA timezone, e.g. `Asia/Jakarta` (default `UTC`). Alias `tz`. |
-| `[p]morning here` / `dm` | anyone | Post in this channel (with a mention) or by DM (default). |
-| `[p]morning enable <section>` / `disable <section>` | anyone | Include / leave out a section. |
-| `[p]morning now` | anyone | Show today's digest here right now (doesn't affect the schedule). Alias `preview`. |
-| `[p]morning remind` | anyone | List your reminders. |
-| `[p]morning remind add <when> <text>` | anyone | `when`: `today`, `tomorrow`, `YYYY-MM-DD`, `daily`, `weekdays`, `weekends`, or days like `mon,thu`. |
-| `[p]morning remind remove <id>` | anyone | Remove a reminder. Aliases `rm`, `done`. |
+| `[p]morning` | owner | Schedule, next send time, and which sections are on. |
+| `[p]morning on` / `off` | owner | Start / stop the daily send. |
+| `[p]morning time <HH:MM>` | owner | Send time, 24h, in the configured timezone (default `07:00`). |
+| `[p]morning timezone <tz>` | owner | IANA timezone, e.g. `Asia/Jakarta` (default `UTC`). Alias `tz`. |
+| `[p]morning here` / `dm` | owner | Send in this channel, or by DM to the owner (default). |
+| `[p]morning enable <section>` / `disable <section>` | owner | Include / leave out a section. |
+| `[p]morning now` | owner | Send today's sections here right now (doesn't affect the schedule). Alias `preview`. |
 
-If the bot is offline at send time, the digest still goes out if it's back within an hour.
+If the bot is offline at send time, the sections still go out if it's back within an hour.
 
 ## Sections
 
-| Key | Title | Content |
-|---|---|---|
-| `reminders` | 📝 To do today | Reminders due today. One-off reminders are dropped once their day has passed. |
+| Key | What |
+|---|---|
+| *(none yet)* | |
 
 ### Adding a section
 
@@ -35,46 +35,55 @@ If the bot is offline at send time, the digest still goes out if it's back withi
    from typing import Optional
 
    import discord
+   from redbot.core import commands
 
-   from ..abc import MixinMeta, section
+   from ..abc import Content, MixinMeta, section
    from ..core import Core
 
 
    class Weather(MixinMeta):
-       @section("weather", "🌤️ Weather", order=10, defaults={"city": None})
-       async def render_weather(self, user: discord.abc.User, today: date) -> Optional[str]:
-           city = await self.section_conf("weather", user).city()
-           return f"Sunny in {city}" if city else None  # None/"" = skip today
+       @section("weather", order=10, description="today's forecast", defaults={"city": None})
+       async def render_weather(self, today: date) -> Optional[Content]:
+           city = await self.section_conf("weather").city()
+           if not city:
+               return None  # skip this section today
+           embed = discord.Embed(title=f"🌤️ {city}", description="28°C, sunny")
+           embed.set_image(url="https://example.com/radar.png")
+           return Content(embeds=[embed])  # also: Content(text=..., files=[discord.File(...)])
 
        @Core.morning.command(name="weather")  # optional settings commands
-       async def morning_weather(self, ctx, *, city: str) -> None:
-           await self.section_conf("weather", ctx.author).city.set(city)
+       async def morning_weather(self, ctx: commands.Context, *, city: str) -> None:
+           await self.section_conf("weather").city.set(city)
            await ctx.send("Saved.")
    ```
 
 2. Add it to `SECTIONS` in `morning/sections/__init__.py`.
 
-Rules: section keys are unique; method names (renderers and commands) must be unique across all
-mixins; a section's data lives only in its own `section_conf(key, user)` group (registered from
-`defaults`, cleared on data deletion). A section that raises shows a warning line instead of
-breaking the digest. Lower `order` renders first.
+Rules:
+- A section returns one `Content` (one Discord message: `text`, up to 10 `embeds`, `files`) or
+  `None` to be skipped. Create `discord.File` objects fresh on every render.
+- The manager adds nothing: no header, titles or colours. A header is its own section.
+- Section keys are unique. Method names (renderers and commands) must be unique across all mixins.
+- A section's data lives only in its own `self.section_conf(key)` Config group, registered from
+  `defaults`.
+- A section that raises is logged and skipped; the other sections still send. Lower `order` is
+  sent first.
 
 ## Events emitted
 
 | Event | Listener signature | When |
 |---|---|---|
-| `morning_sent` | `on_morning_sent(self, user: discord.abc.User, day: datetime.date)` | After a scheduled digest is delivered. |
+| `morning_sent` | `on_morning_sent(self, day: datetime.date)` | After a scheduled send delivered at least one section. |
 
 ## Public methods
 
 | Method | What |
 |---|---|
-| `await cog.build_digest(user, day) -> discord.Embed` | Render the digest for `user` on `day` (a `datetime.date`). |
+| `await cog.build_digest(day) -> List[Content]` | Render the enabled sections for `day` (a `datetime.date`), in order. |
 
 ## Data
 
-Per-user settings, plus one Config group per section per user (e.g. reminders).
-All cleared by `red_delete_data_for_user`.
+Global settings, plus one Config group per section. No per-user data.
 
 ## Secrets
 

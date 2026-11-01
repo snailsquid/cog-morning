@@ -9,25 +9,25 @@ from .sections import SECTIONS
 
 
 class Morning(Core, *SECTIONS, commands.Cog, metaclass=CompositeMetaClass):
-    """A daily morning message, built from pluggable sections."""
+    """Sends the morning sections at a set time each day."""
 
     def __init__(self, bot: Red) -> None:
         self.bot = bot
         self.config = Config.get_conf(self, identifier=426660349173, force_registration=True)
-        self.config.register_user(
+        self.config.register_global(
             enabled=False,
             time="07:00",
             timezone="UTC",
-            channel=None,  # None = DM
+            channel=None,  # None = DM the bot owner
             disabled_sections=[],
-            last_sent=None,  # ISO date, in the user's timezone
+            last_sent=None,  # ISO date, in the configured timezone
         )
         self.sections: List[Tuple[SectionInfo, object]] = []
         for name in dir(type(self)):
             info = getattr(getattr(type(self), name, None), "__morning_section__", None)
             if info is None:
                 continue
-            self.config.init_custom(info.key, 1)
+            self.config.init_custom(info.key, 0)
             self.config.register_custom(info.key, **info.defaults)
             self.sections.append((info, getattr(self, name)))
         self.sections.sort(key=lambda s: (s[0].order, s[0].key))

@@ -3,8 +3,8 @@
         "snailsquid"
     ],
     "name": "cog-morning",
-    "short": "Daily morning digest built from pluggable sections (reminders, ...)",
-    "description": "Daily morning digest built from pluggable sections (reminders, ...)",
+    "short": "Sends pluggable morning sections at a set time each day",
+    "description": "Single-cog repo for morning: a scheduler that sends pluggable morning sections.",
     "install_msg": "Installed via the conductor.",
     "type": "COG"
 }
