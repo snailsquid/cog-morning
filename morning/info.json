@@ -1,0 +1,15 @@
+{
+    "author": [
+        "snailsquid"
+    ],
+    "name": "Morning",
+    "short": "Daily morning digest built from pluggable sections (reminders, ...)",
+    "description": "Daily morning digest built from pluggable sections (reminders, ...)",
+    "end_user_data_statement": "This cog does not persistently store data about users.",
+    "requirements": [],
+    "tags": [],
+    "min_bot_version": "3.5.0",
+    "hidden": false,
+    "disabled": false,
+    "type": "COG"
+}

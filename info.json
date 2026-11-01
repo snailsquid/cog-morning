@@ -1,8 +1,10 @@
 {
-    "author": ["snailsquid"],
-    "name": "cog-template",
-    "short": "Template for single-cog repos managed by the conductor.",
-    "description": "One cog per repo. Created with `new-cog <name>`; pushes to the default branch go live automatically.",
+    "author": [
+        "snailsquid"
+    ],
+    "name": "cog-morning",
+    "short": "Daily morning digest built from pluggable sections (reminders, ...)",
+    "description": "Daily morning digest built from pluggable sections (reminders, ...)",
     "install_msg": "Installed via the conductor.",
     "type": "COG"
 }
