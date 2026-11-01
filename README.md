@@ -26,6 +26,7 @@ If the bot is offline at send time, the sections still go out if it's back withi
 
 | Key | What | From |
 |---|---|---|
+| `mention` | @-mentions the owner, as its own message before the rest, so the morning pings | this repo |
 | `life` | week number, date, week progress (image) | [cog-weekcard](https://github.com/snailsquid/cog-weekcard) |
 | `college` | % of college finished, days left (image) | [cog-weekcard](https://github.com/snailsquid/cog-weekcard) |
 
