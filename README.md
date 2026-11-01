@@ -26,7 +26,8 @@ If the bot is offline at send time, the sections still go out if it's back withi
 
 | Key | What | From |
 |---|---|---|
-| `weekcard` | week number, date, week progress, days left this year (image) | [cog-weekcard](https://github.com/snailsquid/cog-weekcard) |
+| `life` | week number, date, week progress (image) | [cog-weekcard](https://github.com/snailsquid/cog-weekcard) |
+| `college` | % of college finished, days left (image) | [cog-weekcard](https://github.com/snailsquid/cog-weekcard) |
 
 Sections come from two places: mixins in this repo (`morning/sections/`), or **other cogs**
 that offer them (below). `[p]morning` lists both; enable/disable works the same for both.
