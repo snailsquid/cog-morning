@@ -100,11 +100,11 @@ class Core(MixinMeta):
             self.bot.dispatch("morning_sent", today)
 
     async def _destination(self, settings: Dict[str, Any]) -> Optional[discord.abc.Messageable]:
-        if settings["channel"]:
-            channel = self.bot.get_channel(settings["channel"])
+        if settings["channel_id"]:
+            channel = self.bot.get_channel(settings["channel_id"])
             if channel is not None:
                 return channel
-            log.warning("Morning: channel %s is gone; falling back to DM", settings["channel"])
+            log.warning("Morning: channel %s is gone; falling back to DM", settings["channel_id"])
         for owner_id in sorted(self.bot.owner_ids or ()):
             owner = self.bot.get_user(owner_id)
             if owner is None:
@@ -185,7 +185,7 @@ class Core(MixinMeta):
         if nxt <= now or settings["last_sent"] == now.date().isoformat():
             nxt += timedelta(days=1)
         p = ctx.clean_prefix
-        where = f"<#{settings['channel']}>" if settings["channel"] else "the owner's DMs"
+        where = f"<#{settings['channel_id']}>" if settings["channel_id"] else "the owner's DMs"
         status = f"**On** · next <t:{int(nxt.timestamp())}:R>" if settings["enabled"] else "**Off**"
         sections = "\n".join(
             f"{'⬜' if info.key in settings['disabled_sections'] else '✅'} `{info.key}`"
@@ -231,13 +231,13 @@ class Core(MixinMeta):
         if not ctx.channel.permissions_for(ctx.me).send_messages:
             await ctx.send("I can't post in this channel.")
             return
-        await self.config.channel.set(ctx.channel.id)
+        await self.config.channel_id.set(ctx.channel.id)
         await ctx.send(f"Morning will be sent in {ctx.channel.mention}.")
 
     @morning.command(name="dm")
     async def morning_dm(self, ctx: commands.Context) -> None:
         """Send by DM to the bot owner (the default)."""
-        await self.config.channel.clear()
+        await self.config.channel_id.clear()
         await ctx.send("Morning will be sent by DM.")
 
     @morning.command(name="enable")

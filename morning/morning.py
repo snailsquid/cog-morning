@@ -17,7 +17,7 @@ class Morning(Core, *SECTIONS, commands.Cog, metaclass=CompositeMetaClass):
         self.config.register_global(
             enabled=False,
             time="07:00",
-            channel=None,  # None = DM the bot owner
+            channel_id=None,  # None = DM the bot owner (not `channel`: that name is a Config method)
             disabled_sections=[],
             last_sent=None,  # ISO date, in the profile timezone
         )
